@@ -66,7 +66,7 @@
                 <h2 class="text-xl font-bold mb-4 text-gray-300">1. Ihre Kontaktdaten</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" id="name" placeholder="Name" class="p-3 rounded-lg input-style" required>
-                    <input type="tel" id="phone" placeholder="Telefonnummer" class="p-3 rounded-lg input-style" required>
+                    <input type="tel" id="phone" placeholder="Telefonnummer (Zur Identifizierung)" class="p-3 rounded-lg input-style" required>
                 </div>
                 <p class="text-xs text-gray-500 mt-2">Die Telefonnummer wird nur zur Identifizierung der Bestellung bei uns benötigt.</p>
             </section>
@@ -121,7 +121,7 @@
             </section>
 
             <p class="text-xs text-center mt-6 text-gray-500">
-                © Mampfy Crazy Mexican-Blankenburg 2025
+                Absender für die Bestätigung: Mampfy Crazy Mexican-Blankenburg
             </p>
         </div>
     </div>
@@ -167,13 +167,14 @@
             orderItemCounter++;
             const container = document.getElementById('order-items-container');
             
+            // Haupt-Container für die Bestellposition: Flexbox wird jetzt vertikal angeordnet
             const itemRow = document.createElement('div');
-            itemRow.className = 'flex items-center space-x-2 p-2 bg-gray-700 rounded-lg shadow';
+            itemRow.className = 'flex flex-col space-y-2 p-3 bg-gray-700 rounded-lg shadow';
             itemRow.id = `item-row-${orderItemCounter}`;
             
             const select = document.createElement('select');
             select.id = `item-select-${orderItemCounter}`;
-            select.className = 'flex-grow p-2 rounded-lg input-style border border-gray-600 focus:ring-2 focus:ring-red-400';
+            select.className = 'w-full p-2 rounded-lg input-style border border-gray-600 focus:ring-2 focus:ring-red-400';
             select.onchange = updateReceipt;
 
             const defaultOption = document.createElement('option');
@@ -191,25 +192,40 @@
                 select.appendChild(option);
             });
 
+            // Container für Menge und Entfernen-Button (horizontal)
+            const quantityControl = document.createElement('div');
+            quantityControl.className = 'flex items-center space-x-3';
+            
             const quantityInput = document.createElement('input');
             quantityInput.type = 'number';
             quantityInput.id = `item-qty-${orderItemCounter}`;
-            quantityInput.className = 'w-16 p-2 rounded-lg input-style border border-gray-600 text-center';
+            // Anpassung der Breite für die Mengen-Eingabe
+            quantityInput.className = 'w-20 p-2 rounded-lg input-style border border-gray-600 text-center'; 
             quantityInput.value = 1;
             quantityInput.min = 1;
             quantityInput.oninput = updateReceipt;
             
+            const quantityLabel = document.createElement('label');
+            quantityLabel.textContent = 'Anzahl:';
+            quantityLabel.className = 'text-gray-400 font-medium';
+
             const removeButton = document.createElement('button');
-            removeButton.className = 'p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0';
-            removeButton.innerHTML = '&#x2715;'; 
+            removeButton.className = 'ml-auto p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0';
+            removeButton.innerHTML = '&#x2715; Speise entfernen'; 
             removeButton.onclick = () => {
                 itemRow.remove();
                 updateReceipt();
             };
 
-            itemRow.appendChild(select);
-            itemRow.appendChild(quantityInput);
-            itemRow.appendChild(removeButton);
+            // Zusammenfügen der Elemente
+            itemRow.appendChild(select); // 1. Speisenauswahl
+            
+            // 2. Mengensteuerung (Anzahl + Entfernen)
+            quantityControl.appendChild(quantityLabel);
+            quantityControl.appendChild(quantityInput);
+            quantityControl.appendChild(removeButton);
+
+            itemRow.appendChild(quantityControl);
             container.appendChild(itemRow);
             
             updateReceipt();

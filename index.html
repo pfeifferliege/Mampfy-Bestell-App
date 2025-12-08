@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mampfy Crazy Mexican - Bestell-App</title>
+    
+    <link rel="icon" href="data:;base64,="> 
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        /* Custom styles for the app's aesthetics */
+        /* Custom styles for the app's aesthetics (Dark Mode) */
         :root {
             --primary-color: #e53e3e; /* Red/Mexican Accent */
-            --whatsapp-green: #25d366; /* WhatsApp Green */
-            --bg-dark: #1a202c; /* Dark background */
+            --secondary-color: #38a169; /* Green Accent */
+            --whatsapp-green: #25D366; /* WhatsApp Green */
+            --bg-dark: #1a202c; /* Deep Dark Background */
+            --card-dark: #2d3748; /* Card Background */
+            --input-dark: #4a5568; /* Input Background */
             --text-light: #ffffff;
         }
         body {
@@ -20,28 +27,31 @@
             color: var(--text-light);
         }
         .container-card {
-            background-color: #2d3748; /* Slightly lighter dark card */
+            background-color: var(--card-dark);
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
         }
         .input-style {
-            background-color: #4a5568;
-            border-color: #4a5568;
+            background-color: var(--input-dark);
+            border-color: var(--input-dark);
             color: var(--text-light);
+            appearance: none; 
         }
-        .btn-primary {
-            background-color: var(--whatsapp-green); /* WhatsApp Green */
+        /* Neuer Stil für den WhatsApp-Button */
+        .btn-whatsapp {
+            background-color: var(--whatsapp-green);
             transition: background-color 0.2s;
         }
-        .btn-primary:hover {
-            background-color: #1faf4a;
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
         }
         .btn-secondary {
-            background-color: #3b82f6; /* Blue for Call button */
+            background-color: var(--secondary-color);
             transition: background-color 0.2s;
         }
         .btn-secondary:hover {
-            background-color: #2563eb;
+            background-color: #2f855a;
         }
+        
         /* Custom scrollbar for better look in dark mode */
         .order-items-container::-webkit-scrollbar {
             width: 8px;
@@ -62,40 +72,39 @@
                 🌯 Mampfy Crazy Mexican - Bestellung
             </h1>
 
-            <section id="personal-data" class="mb-8 p-4 border border-gray-600 rounded-lg">
+            <section id="personal-data" class="mb-8 p-4 border border-gray-700 rounded-lg">
                 <h2 class="text-xl font-bold mb-4 text-gray-300">1. Ihre Kontaktdaten</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="name" placeholder="Name" class="p-3 rounded-lg input-style" required>
-                    <input type="tel" id="phone" placeholder="Telefonnummer (Zur Identifizierung)" class="p-3 rounded-lg input-style" required>
+                    <input type="text" id="name" placeholder="Name" class="p-3 rounded-lg input-style focus:ring-red-500 focus:border-red-500" required>
+                    <input type="tel" id="phone" placeholder="Telefonnummer (für WhatsApp)" class="p-3 rounded-lg input-style focus:ring-red-500 focus:border-red-500" required>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">Die Telefonnummer wird nur zur Identifizierung der Bestellung bei uns benötigt.</p>
             </section>
 
-            <section id="order-section" class="mb-8 p-4 border border-gray-600 rounded-lg">
-                <h2 class="text-xl font-bold mb-4 text-gray-300">2. Ihre Bestellung</h2>
+            <section id="order-section" class="mb-8 p-4 border border-gray-700 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-300">2. Ihre Speisen</h2>
                 
                 <div id="order-items-container" class="order-items-container space-y-4 max-h-96 overflow-y-auto pr-2 mb-4">
                     </div>
 
                 <div class="flex flex-col md:flex-row items-center justify-between mt-4">
-                    <button id="add-dish-btn" class="w-full md:w-auto px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold shadow-md mb-4 md:mb-0" onclick="addDish()">
+                    <button id="add-dish-btn" class="w-full md:w-auto px-6 py-3 btn-secondary rounded-lg font-semibold shadow-md mb-4 md:mb-0" onclick="addDish()">
                         + Speise hinzufügen
                     </button>
                     
                     <div class="w-full md:w-1/3">
                         <label for="pickup-time" class="block text-sm font-medium mb-1 text-gray-400">Gewünschte Abholzeit:</label>
-                        <input type="time" id="pickup-time" class="p-3 rounded-lg input-style w-full" value="" required>
+                        <input type="time" id="pickup-time" class="p-3 rounded-lg input-style w-full focus:ring-red-500 focus:border-red-500" value="" required>
                     </div>
                 </div>
             </section>
             
-            <section id="receipt-section" class="mb-8 p-4 border border-gray-600 rounded-lg">
-                <h2 class="text-xl font-bold mb-4 text-gray-300">3. Ihre Rechnung</h2>
+            <section id="receipt-section" class="mb-8 p-4 border border-gray-700 rounded-lg bg-gray-800">
+                <h2 class="text-xl font-bold mb-4 text-yellow-400">3. Ihre Rechnung</h2>
                 <div id="receipt-details" class="space-y-2 text-sm text-gray-200">
                     <p class="text-center italic text-gray-400">Noch keine Artikel in der Bestellung.</p>
                 </div>
                 
-                <div id="receipt-total" class="mt-4 pt-4 border-t border-gray-600 font-bold text-lg flex justify-between">
+                <div id="receipt-total" class="mt-4 pt-4 border-t border-gray-600 font-bold text-lg flex justify-between text-yellow-300">
                     <span>Gesamtsumme:</span>
                     <span id="total-price">0,00 €</span>
                 </div>
@@ -105,23 +114,19 @@
                 </div>
             </section>
 
-            <section id="action-section" class="p-4 border border-gray-600 rounded-lg">
-                <h2 class="text-xl font-bold mb-4 text-gray-300">4. Bestell-Aktionen</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button class="flex items-center justify-center px-6 py-3 btn-primary text-white rounded-lg font-semibold shadow-md" onclick="sendOrder()">
+            <section id="action-section" class="p-4 border border-gray-700 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-300">4. Bestellung absenden</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <button class="flex items-center justify-center w-full px-6 py-4 btn-whatsapp rounded-lg font-semibold shadow-md text-white transition-transform transform hover:scale-[1.01]" onclick="sendOrderViaWhatsApp()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.54 2 2.08 6.47 2.08 11.97c0 1.63.4 3.23 1.18 4.67l-1.22 4.45 4.65-1.21c1.37.74 2.87 1.14 4.35 1.14 5.49 0 9.95-4.47 9.95-9.97C22 6.47 17.54 2 12.04 2zm5.82 14.86c-.19.46-.73.69-1.22.69-2.09 0-4.18-.74-5.82-2.22-.38-.34-.73-.72-1.04-1.12l-1.55-2.02c-.14-.19-.36-.26-.54-.18l-1.01.4c-.1.04-.13.06-.17.06-.21 0-.39-.12-.39-.34 0-1.78 1.4-3.2 3.1-3.2h.15c.19 0 .36.14.4.31l.5.76c.04.08.11.12.18.12.06 0 .12-.04.16-.08l1.09-1.34c.14-.17.39-.22.56-.13l1.83.95c.17.08.36.03.48-.1L17 11.44c.14-.19.1-.42-.1-.52l-1.7-1.1c-.2-.1-.4-.14-.62-.06l-1.46.36c-.19.04-.32-.05-.4-.22l-.46-1.12c-.08-.17-.25-.26-.44-.26h-.03c-2.47 0-4.48 2.01-4.48 4.48 0 1.2.47 2.37 1.34 3.22 1.45 1.3 3.14 1.94 4.88 1.94.85 0 1.63-.16 2.36-.5.19-.09.28-.3.2-.5z"/></svg>
-                        Bestellung per WhatsApp senden
-                    </button>
-                    <button class="flex items-center justify-center px-6 py-3 btn-secondary text-white rounded-lg font-semibold shadow-md" onclick="callRestaurant()">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.58l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.74 21 3 13.26 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.12.35.03.75-.25 1.02l-2.2 2.2z"/></svg>
-                        Mampfy anrufen
+                        Per WhatsApp senden
                     </button>
                 </div>
-                <p id="message-box" class="mt-4 p-3 text-white rounded-lg hidden"></p>
+                <p id="message-box" class="mt-4 p-3 text-white rounded-lg hidden text-center"></p>
             </section>
 
             <p class="text-xs text-center mt-6 text-gray-500">
-                Absender für die Bestätigung: Mampfy Crazy Mexican-Blankenburg
+                © Mampfy Crazy Mexican-Blankenburg 2025
             </p>
         </div>
     </div>
@@ -143,8 +148,8 @@
         ];
 
         let orderItemCounter = 0;
-        // Die Zielnummer für WhatsApp und Anruf
-        const phoneRecipient = '017684684365'; 
+        // WhatsApp-Empfängernummer (mit Landesvorwahl, ohne +)
+        const phoneRecipient = '4915234392083'; 
         const senderName = 'Mampfy Crazy Mexican-Blankenburg';
 
         /**
@@ -153,7 +158,7 @@
         function showMessage(message, type = 'error') {
             const msgBox = document.getElementById('message-box');
             msgBox.textContent = message;
-            msgBox.className = `mt-4 p-3 rounded-lg ${type === 'success' ? 'bg-green-700' : 'bg-red-700'} text-white`;
+            msgBox.className = `mt-4 p-3 rounded-lg text-center ${type === 'success' ? 'bg-green-700' : 'bg-red-700'} text-white`;
             msgBox.style.display = 'block';
             setTimeout(() => {
                 msgBox.style.display = 'none';
@@ -167,14 +172,13 @@
             orderItemCounter++;
             const container = document.getElementById('order-items-container');
             
-            // Haupt-Container für die Bestellposition: Flexbox wird jetzt vertikal angeordnet
             const itemRow = document.createElement('div');
-            itemRow.className = 'flex flex-col space-y-2 p-3 bg-gray-700 rounded-lg shadow';
+            itemRow.className = 'flex items-center space-x-2 p-2 bg-gray-700 rounded-lg shadow';
             itemRow.id = `item-row-${orderItemCounter}`;
             
             const select = document.createElement('select');
             select.id = `item-select-${orderItemCounter}`;
-            select.className = 'w-full p-2 rounded-lg input-style border border-gray-600 focus:ring-2 focus:ring-red-400';
+            select.className = 'flex-grow p-2 rounded-lg input-style border border-gray-600 focus:ring-2 focus:ring-red-400';
             select.onchange = updateReceipt;
 
             const defaultOption = document.createElement('option');
@@ -192,40 +196,26 @@
                 select.appendChild(option);
             });
 
-            // Container für Menge und Entfernen-Button (horizontal)
-            const quantityControl = document.createElement('div');
-            quantityControl.className = 'flex items-center space-x-3';
-            
             const quantityInput = document.createElement('input');
             quantityInput.type = 'number';
             quantityInput.id = `item-qty-${orderItemCounter}`;
-            // Anpassung der Breite für die Mengen-Eingabe
-            quantityInput.className = 'w-20 p-2 rounded-lg input-style border border-gray-600 text-center'; 
+            quantityInput.className = 'w-16 p-2 rounded-lg input-style border border-gray-600 text-center focus:ring-red-400';
             quantityInput.value = 1;
             quantityInput.min = 1;
             quantityInput.oninput = updateReceipt;
             
-            const quantityLabel = document.createElement('label');
-            quantityLabel.textContent = 'Anzahl:';
-            quantityLabel.className = 'text-gray-400 font-medium';
-
             const removeButton = document.createElement('button');
-            removeButton.className = 'ml-auto p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0';
-            removeButton.innerHTML = '&#x2715; Speise entfernen'; 
+            removeButton.className = 'p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0';
+            removeButton.innerHTML = '&#x2715;'; 
+            removeButton.title = 'Speise entfernen';
             removeButton.onclick = () => {
                 itemRow.remove();
                 updateReceipt();
             };
 
-            // Zusammenfügen der Elemente
-            itemRow.appendChild(select); // 1. Speisenauswahl
-            
-            // 2. Mengensteuerung (Anzahl + Entfernen)
-            quantityControl.appendChild(quantityLabel);
-            quantityControl.appendChild(quantityInput);
-            quantityControl.appendChild(removeButton);
-
-            itemRow.appendChild(quantityControl);
+            itemRow.appendChild(select);
+            itemRow.appendChild(quantityInput);
+            itemRow.appendChild(removeButton);
             container.appendChild(itemRow);
             
             updateReceipt();
@@ -255,13 +245,14 @@
                 if (selectedOption && selectedOption.value !== '' && quantity > 0) {
                     itemCount++;
                     const price = parseFloat(selectedOption.getAttribute('data-price'));
-                    // .substring(2).trim() entfernt das Emoji am Anfang
-                    const name = selectedOption.textContent.split(' (')[0].trim().substring(2).trim(); 
+                    // Name ohne Emoji und Preis im Dropdown extrahieren
+                    const nameWithEmoji = selectedOption.textContent.split(' (')[0].trim();
+                    const name = nameWithEmoji.substring(nameWithEmoji.indexOf(' ')).trim(); 
                     const itemTotal = price * quantity;
                     totalSum += itemTotal;
                     
                     receiptHTML += `
-                        <div class="flex justify-between">
+                        <div class="flex justify-between border-b border-gray-700 pb-1">
                             <span class="flex-1">${quantity}x ${name}</span>
                             <span class="w-24 text-right">${price.toFixed(2).replace('.', ',')} €</span>
                             <span class="w-24 text-right font-semibold">${itemTotal.toFixed(2).replace('.', ',')} €</span>
@@ -282,13 +273,11 @@
         }
 
         /**
-         * Generiert den Bestelltext für WhatsApp.
-         * Der Text ist jetzt mit doppelten Zeilenumbrüchen und Sternchen für Fettschrift optimiert.
-         * @returns {string} Der generierte Bestelltext.
+         * Generiert den vollständigen Bestelltext (vereinfacht für WhatsApp).
          */
         function generateOrderText() {
             const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim(); 
+            const phone = document.getElementById('phone').value.trim();
             const pickupTime = document.getElementById('pickup-time').value.trim();
             const total = document.getElementById('total-price').textContent;
             
@@ -296,8 +285,8 @@
             
             let itemsText = [];
             const itemContainer = document.getElementById('order-items-container');
-            
             let hasValidItems = false;
+            
             Array.from(itemContainer.children).forEach(row => {
                 const select = row.querySelector('select');
                 const quantityInput = row.querySelector('input[type="number"]');
@@ -307,37 +296,59 @@
                 
                 if (selectedOption && selectedOption.value !== '' && quantity > 0) {
                     hasValidItems = true;
-                    // Vereinfacht für WhatsApp: nur Menge und Name
-                    const dishName = selectedOption.textContent.split(' (')[0].trim().substring(2).trim(); 
-                    itemsText.push(`- ${quantity}x ${dishName}`); // Liste mit Bindestrichen
+                    const nameWithEmoji = selectedOption.textContent.split(' (')[0].trim();
+                    const name = nameWithEmoji.substring(nameWithEmoji.indexOf(' ')).trim(); 
+                    
+                    // Vereinfacht für WhatsApp (ohne Einzelpreis-Aufschlüsselung)
+                    itemsText.push(`* ${quantity}x ${name}`);
                 }
             });
 
             if (!name) { return 'Bitte Name eingeben.'; }
+            if (!phone) { return 'Bitte Telefonnummer eingeben.'; }
             if (!pickupTime) { return 'Bitte Abholzeit eingeben.'; }
             if (!hasValidItems) { return 'Keine Speisen ausgewählt.'; }
+
             
-            // --- Strukturierung für WhatsApp-Übersichtlichkeit ---
+            let contactDetails = `Name: ${name}${lineBreak}`;
+            contactDetails += `Telefon: ${phone}${lineBreak}`;
             
-            const orderText = `*Neue Abhol-Bestellung*` + lineBreak + lineBreak +
-                             `*Kontaktinformationen:*` + lineBreak +
-                             `Name: ${name}` + lineBreak +
-                             `Telefon: ${phone || 'Nicht angegeben'}` + lineBreak + lineBreak +
-                             
-                             `*Gewünschte Abholzeit:*` + lineBreak +
-                             `${pickupTime}` + lineBreak + lineBreak +
-                             
-                             `*Bestellte Speisen:*` + lineBreak +
-                             itemsText.join(lineBreak) + lineBreak + lineBreak +
-                             
-                             `*Gesamtsumme:*` + lineBreak +
-                             `${total}` + lineBreak + lineBreak +
-                             
-                             `Vielen Dank für Ihre Bestellung!`;
+            const orderText = `*Neue Bestellung - Mampfy Crazy Mexican*${lineBreak}${lineBreak}` +
+                             `*Kunde:*${lineBreak}` +
+                             contactDetails +
+                             `${lineBreak}*Abholzeit:*${lineBreak}` +
+                             `${pickupTime}${lineBreak}${lineBreak}` +
+                             `*Bestellte Speisen:*${lineBreak}` +
+                             itemsText.join(lineBreak) +
+                             `${lineBreak}${lineBreak}*Gesamtsumme:*${lineBreak}` +
+                             `${total}${lineBreak}${lineBreak}` +
+                             `Vielen Dank!`;
                              
             return orderText;
         }
         
+        /**
+         * Führt die WhatsApp-Bestellung aus.
+         */
+        function sendOrderViaWhatsApp() {
+            const validationResult = validateOrder(false);
+            if (validationResult !== true) {
+                showMessage(validationResult);
+                return;
+            }
+            
+            const orderText = generateOrderText(); 
+
+            if (orderText && typeof orderText === 'string') {
+                const whatsappUrl = `https://wa.me/${phoneRecipient}?text=${encodeURIComponent(orderText)}`;
+                window.open(whatsappUrl, '_blank');
+                showMessage('WhatsApp-Nachricht wurde erstellt. Bitte klicken Sie in WhatsApp auf "Senden".', 'success');
+            }
+        }
+        
+        /**
+         * Prüft, ob alle Pflichtfelder ausgefüllt sind.
+         */
         function validateOrder() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -364,38 +375,10 @@
             return true;
         }
 
-        /**
-         * Öffnet WhatsApp mit dem vorbereiteten Bestelltext.
-         */
-        function sendOrder() {
-            const validationResult = validateOrder();
-            if (validationResult !== true) {
-                 showMessage(validationResult);
-                 return;
-            }
-
-            const orderText = generateOrderText(); 
-            
-            if (orderText && typeof orderText === 'string') {
-                const whatsappUrl = `https://wa.me/${phoneRecipient}?text=${encodeURIComponent(orderText)}`;
-                window.open(whatsappUrl, '_blank');
-                showMessage('WhatsApp-Nachricht wurde erstellt. Bitte klicken Sie in WhatsApp auf "Senden".', 'success');
-            }
-        }
-        
-        /**
-         * Öffnet den Telefon-Dialog zum Anrufen.
-         */
-        function callRestaurant() {
-            // Einfacher Aufruf der Nummer
-            window.location.href = `tel:${phoneRecipient}`;
-            showMessage('Telefonnummer wird geöffnet...', 'success');
-        }
-
         document.getElementById('pickup-time').addEventListener('input', updateReceipt);
         
         function initializeApp() {
-            // Starte einfach mit einer leeren Bestellposition.
+            // Starte mit einer Bestellposition
             addDish(); 
         }
 

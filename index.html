@@ -13,12 +13,12 @@
     <style>
         /* Custom styles for the app's aesthetics (Dark Mode) */
         :root {
-            --primary-color: #e53e3e; /* Red/Mexican Accent */
-            --secondary-color: #38a169; /* Green Accent */
-            --whatsapp-green: #25D366; /* WhatsApp Green */
-            --bg-dark: #1a202c; /* Deep Dark Background */
-            --card-dark: #2d3748; /* Card Background */
-            --input-dark: #4a5568; /* Input Background */
+            --primary-color: #e53e3e; 
+            --secondary-color: #38a169; 
+            --whatsapp-green: #25D366; 
+            --bg-dark: #1a202c; 
+            --card-dark: #2d3748; 
+            --input-dark: #4a5568; 
             --text-light: #ffffff;
         }
         body {
@@ -36,7 +36,6 @@
             color: var(--text-light);
             appearance: none; 
         }
-        /* Neuer Stil für den WhatsApp-Button */
         .btn-whatsapp {
             background-color: var(--whatsapp-green);
             transition: background-color 0.2s;
@@ -52,7 +51,6 @@
             background-color: #2f855a;
         }
         
-        /* Custom scrollbar for better look in dark mode */
         .order-items-container::-webkit-scrollbar {
             width: 8px;
         }
@@ -65,11 +63,69 @@
         }
         
         .btn-share {
-            background-color: #1D9BF0; /* Neutrales Blau/Cyan für Teilen */
+            background-color: #1D9BF0; 
             transition: background-color 0.2s;
         }
         .btn-share:hover {
             background-color: #1781c9;
+        }
+
+        /* Stil für Radio-Buttons */
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--input-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .radio-label:hover {
+            background-color: #3f4757;
+        }
+        input[type="radio"]:checked + .radio-label {
+            border-color: var(--primary-color);
+            background-color: #3f4757;
+        }
+        /* MODAL (Pop-up) Styles */
+        #paypal-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #modal-content {
+            background-color: var(--card-dark);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        .paypal-link-display {
+            background-color: #4a5568;
+            padding: 10px;
+            border-radius: 6px;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            color: #ffda79;
+        }
+        .test-mode-warning {
+             background-color: #ffda79;
+             color: #1a202c;
+             padding: 8px;
+             border-radius: 4px;
+             font-weight: bold;
+             margin-bottom: 15px;
+             text-align: center;
         }
     </style>
 </head>
@@ -110,8 +166,29 @@
                 </div>
             </section>
             
+            <section id="payment-section" class="mb-8 p-4 border border-gray-700 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-300">3. Bezahlmethode <span class="text-red-500">*</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <input type="radio" id="pay-cash" name="payment-method" value="Barzahlung" class="hidden" required checked>
+                        <label for="pay-cash" class="radio-label">
+                            <span class="mr-3 text-2xl">💰</span>
+                            <span class="font-semibold">Barzahlung bei Abholung</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" id="pay-paypal" name="payment-method" value="PayPal" class="hidden" required>
+                        <label for="pay-paypal" class="radio-label">
+                            <span class="mr-3 text-2xl">💳</span>
+                            <span class="font-semibold">PayPal (Vorkasse)</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+
             <section id="receipt-section" class="mb-8 p-4 border border-gray-700 rounded-lg bg-gray-800">
-                <h2 class="text-xl font-bold mb-4 text-yellow-400">3. Ihre Rechnung</h2>
+                <h2 class="text-xl font-bold mb-4 text-yellow-400">4. Ihre Rechnung</h2>
                 <div id="receipt-details" class="space-y-2 text-sm text-gray-200">
                     <p class="text-center italic text-gray-400">Noch keine Artikel in der Bestellung.</p>
                 </div>
@@ -134,14 +211,19 @@
                     <span>Abholzeit:</span>
                     <span id="display-pickup-time">Bitte auswählen</span>
                 </div>
+                <div id="receipt-payment" class="pt-1 text-sm flex justify-between text-gray-400">
+                    <span>Bezahlung:</span>
+                    <span id="display-payment-method">Barzahlung</span>
+                </div>
+
             </section>
             
             <section id="action-section" class="p-4 border border-gray-700 rounded-lg">
-                <h2 class="text-xl font-bold mb-4 text-gray-300">4. Bestellung absenden</h2>
+                <h2 class="text-xl font-bold mb-4 text-gray-300">5. Bestellung absenden</h2>
                 <div class="grid grid-cols-1 gap-4">
-                    <button class="flex items-center justify-center w-full px-6 py-4 btn-whatsapp rounded-lg font-semibold shadow-md text-white transition-transform transform hover:scale-[1.01]" onclick="sendOrderViaWhatsApp()">
+                    <button id="send-order-btn" class="flex items-center justify-center w-full px-6 py-4 btn-whatsapp rounded-lg font-semibold shadow-md text-white transition-transform transform hover:scale-[1.01]" onclick="handleOrderSubmission()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.54 2 2.08 6.47 2.08 11.97c0 1.63.4 3.23 1.18 4.67l-1.22 4.45 4.65-1.21c1.37.74 2.87 1.14 4.35 1.14 5.49 0 9.95-4.47 9.95-9.97C22 6.47 17.54 2 12.04 2zm5.82 14.86c-.19.46-.73.69-1.22.69-2.09 0-4.18-.74-5.82-2.22-.38-.34-.73-.72-1.04-1.12l-1.55-2.02c-.14-.19-.36-.26-.54-.18l-1.01.4c-.1.04-.13.06-.17.06-.21 0-.39-.12-.39-.34 0-1.78 1.4-3.2 3.1-3.2h.15c.19 0 .36.14.4.31l.5.76c.04.08.11.12.18.12.06 0 .12-.04.16-.08l1.09-1.34c.14-.17.39-.22.56-.13l1.83.95c.17.08.36.03.48-.1L17 11.44c.14-.19.1-.42-.1-.52l-1.7-1.1c-.2-.1-.4-.14-.62-.06l-1.46.36c-.19.04-.32-.05-.4-.22l-.46-1.12c-.08-.17-.25-.26-.44-.26h-.03c-2.47 0-4.48 2.01-4.48 4.48 0 1.2.47 2.37 1.34 3.22 1.45 1.3 3.14 1.94 4.88 1.94.85 0 1.63-.16 2.36-.5.19-.09.28-.3.2-.5z"/></svg>
-                        Per WhatsApp senden
+                        Per WhatsApp senden (Barzahlung)
                     </button>
                 </div>
                 <p id="message-box" class="mt-4 p-3 text-white rounded-lg hidden text-center"></p>
@@ -167,6 +249,39 @@
         </div>
     </div>
 
+    <div id="paypal-modal">
+        <div id="modal-content">
+            <div id="test-mode-info" class="test-mode-warning" style="display: none;">
+                ⚠ TEST-MODUS AKTIV: Der Link dient nur der Überprüfung, keine Zahlung wird ausgeführt.
+            </div>
+
+            <h3 class="text-xl font-bold mb-4 text-red-500">💳 PayPal-Zahlung erforderlich!</h3>
+            <p class="mb-4">Bitte klicken Sie auf den Link, um <strong id="modal-total-price">0,00 €</strong> zu bezahlen. Ihre Bestellung wird erst nach diesem Schritt gesendet.</p>
+            
+            <a id="paypal-link" href="#" target="_blank" class="block w-full text-center p-3 mb-4 bg-yellow-500 text-gray-900 font-bold rounded-lg hover:bg-yellow-400">
+                PayPal-Zahlung starten
+            </a>
+
+            <div class="paypal-link-display mb-4 text-sm">
+                <span class="font-bold">Link (zur Sicherheit):</span> <span id="modal-link-display"></span>
+            </div>
+
+            <p class="text-sm text-gray-400 mb-6">
+                Nach erfolgreicher Zahlung kehren Sie bitte hierher zurück und bestätigen:
+            </p>
+
+            <button id="confirm-paypal-btn" class="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md" onclick="sendOrderViaWhatsApp('PayPal')">
+                Zahlung abgeschlossen & Bestellung senden
+            </button>
+            
+            <button class="w-full mt-3 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md" onclick="sendOrderViaWhatsApp('Barzahlung_Fallback')">
+                Abbrechen: Stattdessen Barzahlung senden
+            </button>
+
+        </div>
+    </div>
+
+
     <script>
         const PRODUCTS = [
             { id: 'b1', name: 'MEXICAN BEEF CHEESE BURRITO', price: 14.50, emoji: '🌯' },
@@ -187,7 +302,11 @@
         const NEW_CUSTOMER_FLAG = 'mampfy_is_new_customer';
         const DISCOUNT_AMOUNT = 1.50; 
         const SHARE_URL = 'https://eu.jotform.com/app/253415036626353'; 
-
+        
+        // HINWEIS: BITTE DIESEN WERT DURCH IHREN ECHTEN PAYPAL.ME NAMEN ERSETZEN (z.B. 'mampfymexican')!
+        // Wenn dieser Wert 'TEST_MODE_DEAKTIVIERT' ist, wird der Test-Link verwendet.
+        const PAYPAL_ME_NAME = 'TEST_MODE_DEAKTIVIERT'; 
+        const PAYPAL_TEST_LINK_BASE = 'https://example.com/test-payment/'; // Harmloser Test-Link
 
         /**
          * Prüft, ob der Neukunden-Rabatt aktiv sein soll.
@@ -276,7 +395,9 @@
             const totalPriceSpan = document.getElementById('total-price');
             const pickupTimeInput = document.getElementById('pickup-time');
             const displayPickupTime = document.getElementById('display-pickup-time');
+            const displayPaymentMethod = document.getElementById('display-payment-method');
             const itemContainer = document.getElementById('order-items-container');
+            const sendBtn = document.getElementById('send-order-btn');
             
             let subTotalSum = 0;
             let receiptHTML = '';
@@ -311,7 +432,6 @@
                 receiptHTML = '<p class="text-center italic text-gray-400">Noch keine Artikel in der Bestellung.</p>';
             }
             
-            // RABATT-BERECHNUNG: Fester Betrag
             let discount = 0;
             let finalTotal = subTotalSum;
             const isFirstTime = isNewCustomer();
@@ -334,9 +454,19 @@
             
             if (finalTotal < 0) finalTotal = 0;
 
-
             const pickupTime = pickupTimeInput.value;
             displayPickupTime.textContent = pickupTime ? pickupTime : 'Bitte auswählen';
+            
+            // Anzeige der Bezahlmethode und Button-Text anpassen
+            const selectedPayment = document.querySelector('input[name="payment-method"]:checked');
+            const paymentMethod = selectedPayment ? selectedPayment.value : 'Barzahlung';
+            displayPaymentMethod.textContent = paymentMethod;
+
+            if (paymentMethod === 'PayPal') {
+                sendBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.54 2 2.08 6.47 2.08 11.97c0 1.63.4 3.23 1.18 4.67l-1.22 4.45 4.65-1.21c1.37.74 2.87 1.14 4.35 1.14 5.49 0 9.95-4.47 9.95-9.97C22 6.47 17.54 2 12.04 2zm5.82 14.86c-.19.46-.73.69-1.22.69-2.09 0-4.18-.74-5.82-2.22-.38-.34-.73-.72-1.04-1.12l-1.55-2.02c-.14-.19-.36-.26-.54-.18l-1.01.4c-.1.04-.13.06-.17.06-.21 0-.39-.12-.39-.34 0-1.78 1.4-3.2 3.1-3.2h.15c.19 0 .36.14.4.31l.5.76c.04.08.11.12.18.12.06 0 .12-.04.16-.08l1.09-1.34c.14-.17.39-.22.56-.13l1.83.95c.17.08.36.03.48-.1L17 11.44c.14-.19.1-.42-.1-.52l-1.7-1.1c-.2-.1-.4-.14-.62-.06l-1.46.36c-.19.04-.32-.05-.4-.22l-.46-1.12c-.08-.17-.25-.26-.44-.26h-.03c-2.47 0-4.48 2.01-4.48 4.48 0 1.2.47 2.37 1.34 3.22 1.45 1.3 3.14 1.94 4.88 1.94.85 0 1.63-.16 2.36-.5.19-.09.28-.3.2-.5z"/></svg>PayPal-Zahlung starten & senden';
+            } else {
+                 sendBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.54 2 2.08 6.47 2.08 11.97c0 1.63.4 3.23 1.18 4.67l-1.22 4.45 4.65-1.21c1.37.74 2.87 1.14 4.35 1.14 5.49 0 9.95-4.47 9.95-9.97C22 6.47 17.54 2 12.04 2zm5.82 14.86c-.19.46-.73.69-1.22.69-2.09 0-4.18-.74-5.82-2.22-.38-.34-.73-.72-1.04-1.12l-1.55-2.02c-.14-.19-.36-.26-.54-.18l-1.01.4c-.1.04-.13.06-.17.06-.21 0-.39-.12-.39-.34 0-1.78 1.4-3.2 3.1-3.2h.15c.19 0 .36.14.4.31l.5.76c.04.08.11.12.18.12.06 0 .12-.04.16-.08l1.09-1.34c.14-.17.39-.22.56-.13l1.83.95c.17.08.36.03.48-.1L17 11.44c.14-.19.1-.42-.1-.52l-1.7-1.1c-.2-.1-.4-.14-.62-.06l-1.46.36c-.19.04-.32-.05-.4-.22l-.46-1.12c-.08-.17-.25-.26-.44-.26h-.03c-2.47 0-4.48 2.01-4.48 4.48 0 1.2.47 2.37 1.34 3.22 1.45 1.3 3.14 1.94 4.88 1.94.85 0 1.63-.16 2.36-.5.19-.09.28-.3.2-.5z"/></svg>Per WhatsApp senden (Barzahlung)';
+            }
 
             receiptDetails.innerHTML = receiptHTML;
             subTotalPriceSpan.textContent = subTotalSum.toFixed(2).replace('.', ',') + ' €';
@@ -344,16 +474,71 @@
         }
 
         /**
-         * Generiert den vollständigen Bestelltext (vereinfacht für WhatsApp).
+         * Hauptfunktion zum Starten der Bestellung (öffnet Modal bei PayPal)
          */
-        function generateOrderText() {
+        function handleOrderSubmission() {
+            const validationResult = validateOrder(false);
+            if (validationResult !== true) {
+                showMessage(validationResult);
+                return;
+            }
+            
+            const selectedPayment = document.querySelector('input[name="payment-method"]:checked').value;
+            
+            if (selectedPayment === 'PayPal') {
+                openPaypalModal();
+            } else {
+                // Barzahlung
+                sendOrderViaWhatsApp('Barzahlung');
+            }
+        }
+        
+        /**
+         * Öffnet das PayPal-Modal und generiert den Link.
+         */
+        function openPaypalModal() {
+            const finalTotalStr = document.getElementById('total-price').textContent;
+            const finalTotal = parseFloat(finalTotalStr.replace('€', '').replace(',', '.').trim());
+            
+            let paypalLink;
+            let isTestMode = PAYPAL_ME_NAME === 'TEST_MODE_DEAKTIVIERT';
+
+            if (isTestMode) {
+                // Test-Link-Logik
+                paypalLink = `${PAYPAL_TEST_LINK_BASE}${finalTotal.toFixed(2).replace('.', ',')}`;
+                document.getElementById('test-mode-info').style.display = 'block';
+
+            } else {
+                // Live-Link-Logik
+                paypalLink = `https://paypal.me/${PAYPAL_ME_NAME}/${finalTotal.toFixed(2).replace('.', ',')}`;
+                document.getElementById('test-mode-info').style.display = 'none';
+            }
+
+            document.getElementById('modal-total-price').textContent = finalTotalStr;
+            document.getElementById('paypal-link').href = paypalLink;
+            document.getElementById('modal-link-display').textContent = paypalLink;
+            
+            document.getElementById('paypal-modal').style.display = 'flex';
+        }
+        
+        /**
+         * Schließt das PayPal-Modal.
+         */
+        function closePaypalModal() {
+            document.getElementById('paypal-modal').style.display = 'none';
+        }
+
+
+        /**
+         * Generiert den vollständigen Bestelltext.
+         */
+        function generateOrderText(paymentMethod) {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const pickupTime = document.getElementById('pickup-time').value.trim();
-            const finalTotal = document.getElementById('total-price').textContent;
+            const finalTotalStr = document.getElementById('total-price').textContent;
             const subTotal = document.getElementById('sub-total-price').textContent;
             
-            // Logik zur Überprüfung, ob der Rabatt auch wirklich angewendet wurde
             const isDiscountApplied = isNewCustomer() && parseFloat(subTotal.replace(',', '.')) >= DISCOUNT_AMOUNT;
             
             const discountText = isDiscountApplied 
@@ -379,60 +564,67 @@
 
             if (itemsText.length === 0) { return 'Fehler: Keine Speisen ausgewählt.'; } 
 
-            let contactDetails = `Name: ${name}${lineBreak}`;
-            contactDetails += `Telefon: ${phone}${lineBreak}`;
-            
-            let totalSummary = '';
-            if (isDiscountApplied) {
-                totalSummary += `Zwischensumme: ${subTotal}${lineBreak}`;
-                totalSummary += `Rabatt: - ${DISCOUNT_AMOUNT.toFixed(2).replace('.', ',')} €${lineBreak}`;
+            let paymentNote = '';
+            let displayedPayment = '';
+
+            if (paymentMethod === 'PayPal') {
+                paymentNote = `${lineBreak}*HINWEIS: Die Zahlung wurde vorab per PayPal gestartet. Bitte prüfen Sie den Zahlungseingang!*`;
+                displayedPayment = 'PayPal (Vorkasse, gestartet)';
+            } else if (paymentMethod === 'Barzahlung_Fallback') {
+                paymentNote = `${lineBreak}*HINWEIS: Kunde hat PayPal abgebrochen und wählt Barzahlung bei Abholung.*`;
+                displayedPayment = 'Barzahlung (PayPal-Fallback)';
+            } else { // 'Barzahlung'
+                 paymentNote = `${lineBreak}*HINWEIS: Zahlung erfolgt bar bei Abholung.*`;
+                 displayedPayment = 'Barzahlung';
             }
+
 
             const orderText = `*Neue Bestellung - Mampfy Crazy Mexican*${lineBreak}${lineBreak}` +
                              `*Kunde:*${lineBreak}` +
-                             contactDetails +
+                             `Name: ${name}${lineBreak}` +
+                             `Telefon: ${phone}${lineBreak}` +
                              `${lineBreak}*Abholzeit:*${lineBreak}` +
                              `${pickupTime}${lineBreak}${lineBreak}` +
-                             `*Bestellte Speisen:*${lineBreak}` +
+                             `*Bezahlmethode:* ${displayedPayment}${lineBreak}` +
+                             `${lineBreak}*Bestellte Speisen:*${lineBreak}` +
                              itemsText.join(lineBreak) +
                              `${lineBreak}${lineBreak}` +
-                             (isDiscountApplied ? totalSummary : '') +
-                             `*Gesamtsumme:*${lineBreak}` +
-                             `${finalTotal}${discountText}${lineBreak}${lineBreak}` +
-                             `Vielen Dank!`;
+                             (isDiscountApplied ? `Zwischensumme: ${subTotal}${lineBreak}Rabatt: - ${DISCOUNT_AMOUNT.toFixed(2).replace('.', ',')} €${lineBreak}` : '') +
+                             `*Gesamtsumme (Endpreis):*${lineBreak}` +
+                             `${finalTotalStr}${discountText}` +
+                             paymentNote +
+                             `${lineBreak}${lineBreak}Vielen Dank!`;
                              
             return orderText;
         }
         
         /**
          * Führt die WhatsApp-Bestellung aus und setzt das Neukunden-Flag.
+         * @param {string} finalPaymentMethod - Barzahlung, PayPal oder Barzahlung_Fallback
          */
-        function sendOrderViaWhatsApp() {
-            const validationResult = validateOrder(false);
-            if (validationResult !== true) {
-                // Zeigt die Fehlermeldung an, wenn die Validierung fehlschlägt
-                showMessage(validationResult);
-                return;
-            }
+        function sendOrderViaWhatsApp(finalPaymentMethod) {
             
-            const orderText = generateOrderText(); 
+            closePaypalModal();
+
+            const orderText = generateOrderText(finalPaymentMethod); 
 
             if (orderText && typeof orderText === 'string') {
                 const whatsappUrl = `https://wa.me/${phoneRecipient}?text=${encodeURIComponent(orderText)}`;
                 window.open(whatsappUrl, '_blank');
                 
-                // WICHTIG: Flag setzen, damit der Kunde bei der nächsten Bestellung keinen Rabatt mehr erhält.
                 if (isNewCustomer()) {
                     localStorage.setItem(NEW_CUSTOMER_FLAG, 'ordered');
                 }
 
-                showMessage('WhatsApp-Nachricht wurde erstellt. Bitte klicken Sie in WhatsApp auf "Senden".', 'success');
+                // Nachricht an den Kunden
+                let successMsg = `Bestellung (${finalPaymentMethod.replace('_Fallback', '')}) via WhatsApp erstellt. Bitte in WhatsApp auf "Senden" klicken.`;
+                if (finalPaymentMethod === 'PayPal') {
+                    successMsg += " Bitte vergessen Sie nicht, die Zahlung in dem geöffneten PayPal-Fenster abzuschließen.";
+                }
+                showMessage(successMsg, 'success');
             }
         }
         
-        /**
-         * Führt die native Web Share API aus, um die App zu teilen.
-         */
         async function shareApp() {
             const shareData = {
                 title: 'Mampfy Crazy Mexican Bestell-App',
@@ -457,12 +649,12 @@
 
         /**
          * Prüft, ob alle Pflichtfelder ausgefüllt sind.
-         * HINWEIS: Hier wurde die Abholzeit als Pflichtfeld hinzugefügt.
          */
         function validateOrder() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
-            const pickupTime = document.getElementById('pickup-time').value.trim(); // <-- Abholzeit abfragen
+            const pickupTime = document.getElementById('pickup-time').value.trim(); 
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked'); 
             
             let hasValidItems = false;
             const itemContainer = document.getElementById('order-items-container');
@@ -479,13 +671,17 @@
 
             if (!name) { return 'Bitte geben Sie Ihren Namen ein.'; }
             if (!phone) { return 'Bitte geben Sie Ihre Telefonnummer ein.'; }
-            if (!pickupTime) { return 'Bitte geben Sie die gewünschte Abholzeit ein.'; } // <-- NEUE PRÜFUNG
+            if (!pickupTime) { return 'Bitte geben Sie die gewünschte Abholzeit ein.'; } 
+            if (!paymentMethod) { return 'Bitte wählen Sie eine Bezahlmethode aus.'; }
             if (!hasValidItems) { return 'Bitte fügen Sie mindestens eine Speise hinzu.'; }
 
             return true;
         }
 
         document.getElementById('pickup-time').addEventListener('input', updateReceipt);
+        document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+            radio.addEventListener('change', updateReceipt);
+        });
         
         function initializeApp() {
             addDish(); 
